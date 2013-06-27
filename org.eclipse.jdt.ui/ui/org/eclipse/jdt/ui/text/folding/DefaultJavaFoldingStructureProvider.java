@@ -223,11 +223,11 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	/**
 	 * A {@link ProjectionAnnotation} for java code.
 	 */
 	protected static final class JavaProjectionAnnotation extends ProjectionAnnotation {
-
 		private IJavaElement fJavaElement;
 		private boolean fIsComment;
 
@@ -278,12 +278,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private static final class Tuple {
 		JavaProjectionAnnotation annotation;
 		Position position;
+		
 		Tuple(JavaProjectionAnnotation annotation, Position position) {
 			this.annotation= annotation;
 			this.position= position;
 		}
 	}
 
+	
 	/**
 	 * Filter for annotations.
 	 */
@@ -291,6 +293,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		boolean match(JavaProjectionAnnotation annotation);
 	}
 
+	
 	/**
 	 * Matches comments.
 	 */
@@ -303,6 +306,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	/**
 	 * Matches members.
 	 */
@@ -320,6 +324,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	/**
 	 * Matches java elements contained in a certain set.
 	 */
@@ -344,6 +349,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	private class ElementChangedListener implements IElementChangedListener {
 
 		/*
@@ -442,7 +448,8 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			return null;
 		}
 	}
-
+	
+	
 	/**
 	 * Projection position that will return two foldable regions: one folding away
 	 * the region from after the '/**' to the beginning of the content, the other
@@ -550,13 +557,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	/**
 	 * Projection position that will return two foldable regions: one folding away
 	 * the lines before the one containing the simple name of the java element, one
 	 * folding away any lines after the caption.
 	 */
 	private static final class JavaElementPosition extends Position implements IProjectionPosition {
-
 		private IMember fMember;
 
 		public JavaElementPosition(int offset, int length, IMember member) {
@@ -603,6 +610,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 
 			IRegion preRegion;
 			if (firstLine < captionLine) {
+		
 				int preOffset= document.getLineOffset(firstLine);
 				IRegion preEndLineInfo= document.getLineInformation(captionLine);
 				int preEnd= preEndLineInfo.getOffset();
@@ -644,9 +652,9 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 
 			return nameStart - offset;
 		}
-
 	}
 
+	
 	/**
 	 * Internal projection listener.
 	 */
@@ -689,6 +697,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		}
 	}
 
+	
 	/* context and listeners */
 	private JavaEditor fEditor;
 	private ProjectionListener fProjectionListener;
@@ -844,9 +853,11 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private FoldingStructureComputationContext createContext(boolean allowCollapse) {
 		if (!isInstalled())
 			return null;
+		
 		ProjectionAnnotationModel model= getModel();
 		if (model == null)
 			return null;
+		
 		IDocument doc= getDocument();
 		if (doc == null)
 			return null;
@@ -900,7 +911,9 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			 * position update and keep the old range, in order to keep the folding structure
 			 * stable.
 			 */
-			boolean isMalformedAnonymousType= newPosition.getOffset() == 0 && element.getElementType() == IJavaElement.TYPE && isInnerType((IType) element);
+			boolean isMalformedAnonymousType= newPosition.getOffset() == 0 
+					&& element.getElementType() == IJavaElement.TYPE 
+					&& isInnerType((IType) element);
 			List<Tuple> annotations= oldStructure.get(element);
 			if (annotations == null) {
 				if (!isMalformedAnonymousType)
@@ -913,8 +926,12 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					JavaProjectionAnnotation existingAnnotation= tuple.annotation;
 					Position existingPosition= tuple.position;
 					if (newAnnotation.isComment() == existingAnnotation.isComment()) {
-						boolean updateCollapsedState= ctx.allowCollapsing() && existingAnnotation.isCollapsed() != newAnnotation.isCollapsed();
-						if (!isMalformedAnonymousType && existingPosition != null && (!newPosition.equals(existingPosition) || updateCollapsedState)) {
+						boolean updateCollapsedState= ctx.allowCollapsing() 
+								&& existingAnnotation.isCollapsed() != newAnnotation.isCollapsed();
+						if (!isMalformedAnonymousType 
+								&& existingPosition != null 
+								&& (!newPosition.equals(existingPosition) 
+										|| updateCollapsedState)) {
 							existingPosition.setOffset(newPosition.getOffset());
 							existingPosition.setLength(newPosition.getLength());
 							if (updateCollapsedState)
@@ -959,6 +976,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		try {
 			if (!(fInput instanceof ISourceReference))
 				return;
+			
 			String source= ((ISourceReference)fInput).getSource();
 			if (source == null)
 				return;
@@ -972,7 +990,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private void computeFoldingStructure(IJavaElement[] elements, FoldingStructureComputationContext ctx) throws JavaModelException {
 		for (int i= 0; i < elements.length; i++) {
 			IJavaElement element= elements[i];
-
+			
 			computeFoldingStructure(element, ctx);
 
 			if (element instanceof IParent) {
@@ -1002,23 +1020,25 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	 * @param ctx the computation context
 	 */
 	protected void computeFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx) {
-
 		boolean collapse= false;
 		boolean collapseCode= true;
+		
 		switch (element.getElementType()) {
-
 			case IJavaElement.IMPORT_CONTAINER:
 				collapse= ctx.collapseImportContainer();
 				break;
+			
 			case IJavaElement.TYPE:
 				collapseCode= isInnerType((IType) element) && !isAnonymousEnum((IType) element);
 				collapse= ctx.collapseInnerTypes() && collapseCode;
 				break;
+				
 			case IJavaElement.METHOD:
 			case IJavaElement.FIELD:
 			case IJavaElement.INITIALIZER:
 				collapse= ctx.collapseMembers();
 				break;
+			
 			default:
 				return;
 		}
@@ -1046,13 +1066,404 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 				IRegion normalized= alignRegion(regions[regions.length - 1], ctx);
 				if (normalized != null) {
 					Position position= element instanceof IMember ? createMemberPosition(normalized, (IMember) element) : createCommentPosition(normalized);
-					if (position != null)
+					if (position != null) {
 						ctx.addProjectionRange(new JavaProjectionAnnotation(collapse, element, false), position);
+						computeTryBlockFoldingStructure(element, ctx, normalized);
+						computeCatchBlockFoldingStructure(element, ctx, normalized);
+						computeFinallyBlockFoldingStructure(element, ctx, normalized);
+						computeIfBlockFoldingStructure(element, ctx, normalized);
+						computeElseBlockFoldingStructure(element, ctx, normalized);
+						computeForBlockFoldingStructure(element, ctx, normalized);
+						computeWhileBlockFoldingStructure(element, ctx, normalized);
+						computeDoBlockFoldingStructure(element, ctx, normalized);
+						computeSwitchBlockFoldingStructure(element, ctx, normalized);
+						computeSynchronizedBlockFoldingStructure(element, ctx, normalized);
+					}
 				}
 			}
 		}
 	}
+	
+	private void computeTryBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("try")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 't' && contents.charAt(++pos) == 'r' && contents.charAt(++pos) == 'y') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
 
+	private void computeCatchBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("catch")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'c' && contents.charAt(++pos) == 'a' && contents.charAt(++pos) == 't'
+						&& contents.charAt(++pos) == 'c' && contents.charAt(++pos) == 'h') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+	
+	private void computeFinallyBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("finally")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'f' && contents.charAt(++pos) == 'i' && contents.charAt(++pos) == 'n'
+						&& contents.charAt(++pos) == 'a' && contents.charAt(++pos) == 'l' && contents.charAt(++pos) == 'l'
+						&& contents.charAt(++pos) == 'y') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+
+	private void computeIfBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("if")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'i' && contents.charAt(++pos) == 'f') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+	
+	private void computeElseBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("else")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'e' && contents.charAt(++pos) == 'l' && contents.charAt(++pos) == 's'
+						&& contents.charAt(++pos) == 'e') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+	
+	private void computeForBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("for")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'f' && contents.charAt(++pos) == 'o' && contents.charAt(++pos) == 'r') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+
+	private void computeWhileBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("while")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'w' && contents.charAt(++pos) == 'h' && contents.charAt(++pos) == 'i'
+						&& contents.charAt(++pos) == 'l' && contents.charAt(++pos) == 'e') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+
+	private void computeDoBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("do")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 'd' && contents.charAt(++pos) == 'o') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+
+	private void computeSwitchBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("switch")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 's' && contents.charAt(++pos) == 'w' && contents.charAt(++pos) == 'i'
+						&& contents.charAt(++pos) == 't' && contents.charAt(++pos) == 'c' && contents.charAt(++pos) == 'h') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+	
+	private void computeSynchronizedBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		ISourceReference srcRef= (ISourceReference) element;
+		String contents= null;
+		try {
+			contents= srcRef.getSource();
+		} catch (JavaModelException e) {
+		}
+		
+		int pos= 0;
+		while (contents.substring(pos, contents.length() - 1).contains("synchronized")) {
+			int startPos= -1;
+			int endPos= -1;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == 's' && contents.charAt(++pos) == 'y' && contents.charAt(++pos) == 'n'
+						&& contents.charAt(++pos) == 'c' && contents.charAt(++pos) == 'h' && contents.charAt(++pos) == 'r'
+						&& contents.charAt(++pos) == 'o' && contents.charAt(++pos) == 'n' && contents.charAt(++pos) == 'i'
+						&& contents.charAt(++pos) == 'z' && contents.charAt(++pos) == 'e' && contents.charAt(++pos) == 'd') {
+					while (contents.charAt(pos) != '{')
+						pos++;
+						
+					startPos= pos++;
+					int level= 0;
+					while (level != -1) {
+						if (contents.charAt(pos) == '{')
+							level++;
+						else if (contents.charAt(pos) == '}')
+							level--;
+						pos++;
+					}
+					endPos= --pos;
+					break;
+				}
+				pos++;
+			}
+	
+			Position position= new Position(region.getOffset() + startPos - 1, endPos - startPos);
+			ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, false), position);
+		}
+	}
+	
+	
 	/**
 	 * Returns <code>true</code> if <code>type</code> is an anonymous enum declaration,
 	 * <code>false</code> otherwise. See also https://bugs.eclipse.org/bugs/show_bug.cgi?id=143276
@@ -1078,7 +1489,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private boolean isInnerType(IType type) {
 		return type.getDeclaringType() != null;
 	}
-
+	
 	/**
 	 * Computes the projection ranges for a given <code>ISourceReference</code>. More than one
 	 * range or none at all may be returned. If there are no foldable regions, an empty array is
@@ -1095,53 +1506,51 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	 */
 	protected final IRegion[] computeProjectionRanges(ISourceReference reference, FoldingStructureComputationContext ctx) {
 		try {
-				ISourceRange range= reference.getSourceRange();
-				if (!SourceRange.isAvailable(range))
-					return new IRegion[0];
-
-				String contents= reference.getSource();
-				if (contents == null)
-					return new IRegion[0];
-
-				List<IRegion> regions= new ArrayList<IRegion>();
-				if (!ctx.hasFirstType() && reference instanceof IType) {
-					ctx.setFirstType((IType) reference);
-					IRegion headerComment= computeHeaderComment(ctx);
-					if (headerComment != null) {
-						regions.add(headerComment);
-						ctx.setHasHeaderComment();
-					}
+			ISourceRange range= reference.getSourceRange();
+			if (!SourceRange.isAvailable(range))
+				return new IRegion[0];
+	
+			String contents= reference.getSource();
+			if (contents == null)
+				return new IRegion[0];
+			
+			List<IRegion> regions= new ArrayList<IRegion>();
+			if (!ctx.hasFirstType() && reference instanceof IType) {
+				ctx.setFirstType((IType) reference);
+				IRegion headerComment= computeHeaderComment(ctx);
+				if (headerComment != null) {
+					regions.add(headerComment);
+					ctx.setHasHeaderComment();
 				}
-
-				final int shift= range.getOffset();
-				IScanner scanner= ctx.getScanner();
-				scanner.resetTo(shift, shift + range.getLength());
-
-				int start= shift;
-				while (true) {
-
-					int token= scanner.getNextToken();
-					start= scanner.getCurrentTokenStartPosition();
-
-					switch (token) {
-						case ITerminalSymbols.TokenNameCOMMENT_JAVADOC:
-						case ITerminalSymbols.TokenNameCOMMENT_BLOCK: {
-							int end= scanner.getCurrentTokenEndPosition() + 1;
-							regions.add(new Region(start, end - start));
-							continue;
-						}
-						case ITerminalSymbols.TokenNameCOMMENT_LINE:
-							continue;
-					}
-
-					break;
+			}
+	
+			final int shift= range.getOffset();
+			IScanner scanner= ctx.getScanner();
+			scanner.resetTo(shift, shift + range.getLength());
+			
+			int start= shift;
+			while (true) {
+				int token= scanner.getNextToken();	
+				start= scanner.getCurrentTokenStartPosition();
+	
+				switch (token) {
+					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC:
+					case ITerminalSymbols.TokenNameCOMMENT_BLOCK:
+						int end= scanner.getCurrentTokenEndPosition() + 1;
+						regions.add(new Region(start, end - start));
+						continue;
+						
+					case ITerminalSymbols.TokenNameCOMMENT_LINE:
+						continue;
 				}
-
-				regions.add(new Region(start, shift + range.getLength() - start));
-
-				IRegion[] result= new IRegion[regions.size()];
-				regions.toArray(result);
-				return result;
+				break;
+			}
+			
+			regions.add(new Region(start, shift + range.getLength() - start));
+	
+			IRegion[] result= new IRegion[regions.size()];
+			regions.toArray(result);
+			return result;
 		} catch (JavaModelException e) {
 		} catch (InvalidInputException e) {
 		}
@@ -1154,9 +1563,9 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		ISourceRange range= ctx.getFirstType().getSourceRange();
 		if (range == null)
 			return null;
+		
 		int start= 0;
 		int end= range.getOffset();
-
 
 		/* code adapted from CommentFormattingStrategy:
 		 * scan the header content up to the first type. Once a comment is
@@ -1172,9 +1581,16 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		try {
 			boolean foundComment= false;
 			int terminal= scanner.getNextToken();
-			while (terminal != ITerminalSymbols.TokenNameEOF && !(terminal == ITerminalSymbols.TokenNameclass || terminal == ITerminalSymbols.TokenNameinterface || terminal == ITerminalSymbols.TokenNameenum || (foundComment && (terminal == ITerminalSymbols.TokenNameimport || terminal == ITerminalSymbols.TokenNamepackage)))) {
-
-				if (terminal == ITerminalSymbols.TokenNameCOMMENT_JAVADOC || terminal == ITerminalSymbols.TokenNameCOMMENT_BLOCK || terminal == ITerminalSymbols.TokenNameCOMMENT_LINE) {
+			while (terminal != ITerminalSymbols.TokenNameEOF 
+					&& !(terminal == ITerminalSymbols.TokenNameclass 
+					|| terminal == ITerminalSymbols.TokenNameinterface 
+					|| terminal == ITerminalSymbols.TokenNameenum 
+					|| (foundComment 
+							&& (terminal == ITerminalSymbols.TokenNameimport 
+								|| terminal == ITerminalSymbols.TokenNamepackage)))) {
+				if (terminal == ITerminalSymbols.TokenNameCOMMENT_JAVADOC 
+						|| terminal == ITerminalSymbols.TokenNameCOMMENT_BLOCK 
+						|| terminal == ITerminalSymbols.TokenNameCOMMENT_LINE) {
 					if (!foundComment)
 						headerStart= scanner.getCurrentTokenStartPosition();
 					headerEnd= scanner.getCurrentTokenEndPosition();
@@ -1239,7 +1655,6 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		IDocument document= ctx.getDocument();
 
 		try {
-
 			int start= document.getLineOfOffset(region.getOffset());
 			int end= document.getLineOfOffset(region.getOffset() + region.getLength());
 			if (start >= end)
@@ -1253,7 +1668,6 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 				endOffset= document.getLineOffset(end) + document.getLineLength(end);
 
 			return new Region(offset, endOffset - offset);
-
 		} catch (BadLocationException x) {
 			// concurrent modification
 			return null;
@@ -1468,7 +1882,6 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						java.markCollapsed();
 					modified.add(java);
 				}
-
 			}
 		}
 
