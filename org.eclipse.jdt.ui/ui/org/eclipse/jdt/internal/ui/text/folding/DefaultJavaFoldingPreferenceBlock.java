@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.ui.preferences.OverlayPreferenceStore.OverlayKey
  * @since 3.0
  */
 public class DefaultJavaFoldingPreferenceBlock implements IJavaFoldingPreferenceBlock {
-
 	private IPreferenceStore fStore;
 	private OverlayPreferenceStore fOverlayStore;
 	private OverlayKey[] fKeys;
@@ -70,7 +69,12 @@ public class DefaultJavaFoldingPreferenceBlock implements IJavaFoldingPreference
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_METHODS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_IMPORTS));
 		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_HEADERS));
-
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_CONDITIONALS));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_SWITCHES));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_LOOPS));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_TRYS));
+		overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PreferenceConstants.EDITOR_FOLDING_SYNCHRONIZEDS));
+		
 		return overlayKeys.toArray(new OverlayKey[overlayKeys.size()]);
 	}
 
@@ -95,6 +99,11 @@ public class DefaultJavaFoldingPreferenceBlock implements IJavaFoldingPreference
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_innerTypes, PreferenceConstants.EDITOR_FOLDING_INNERTYPES, 0);
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_methods, PreferenceConstants.EDITOR_FOLDING_METHODS, 0);
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_imports, PreferenceConstants.EDITOR_FOLDING_IMPORTS, 0);
+		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_conditionals, PreferenceConstants.EDITOR_FOLDING_CONDITIONALS, 0);
+		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_switches, PreferenceConstants.EDITOR_FOLDING_SWITCHES, 0);
+		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_loops, PreferenceConstants.EDITOR_FOLDING_LOOPS, 0);
+		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_trys, PreferenceConstants.EDITOR_FOLDING_TRYS, 0);
+		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_synchronizeds, PreferenceConstants.EDITOR_FOLDING_SYNCHRONIZEDS, 0);
 
 		return inner;
 	}

@@ -710,6 +710,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private boolean fCollapseInnerTypes= true;
 	private boolean fCollapseMembers= false;
 	private boolean fCollapseHeaderComments= true;
+	
+	// TODO: Implement the following preferences for general java code block folding
+	private boolean fCollapseConditionals= false;
+	private boolean fCollapseLoops= false;
+	private boolean fCollapseSynchronizeds= false;
+	private boolean fCollapseSwitches= false;
+	private boolean fCollapseUnnameds= false;
+	private boolean fCollapseTrys= false;
 
 	/* filters */
 	/** Member filter, matches nested members (but not top-level types). */
@@ -882,6 +890,11 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		fCollapseJavadoc= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_JAVADOC);
 		fCollapseMembers= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_METHODS);
 		fCollapseHeaderComments= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_HEADERS);
+		fCollapseConditionals= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_CONDITIONALS);
+		fCollapseSwitches= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_SWITCHES);
+		fCollapseLoops= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_LOOPS);
+		fCollapseTrys= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_TRYS);
+		fCollapseSynchronizeds= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_SYNCHRONIZEDS);
 	}
 
 	private void update(FoldingStructureComputationContext ctx) {
@@ -1068,6 +1081,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					Position position= element instanceof IMember ? createMemberPosition(normalized, (IMember) element) : createCommentPosition(normalized);
 					if (position != null) {
 						ctx.addProjectionRange(new JavaProjectionAnnotation(collapse, element, false), position);
+						/*
 						computeTryBlockFoldingStructure(element, ctx, normalized);
 						computeCatchBlockFoldingStructure(element, ctx, normalized);
 						computeFinallyBlockFoldingStructure(element, ctx, normalized);
@@ -1078,9 +1092,551 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						computeDoBlockFoldingStructure(element, ctx, normalized);
 						computeSwitchBlockFoldingStructure(element, ctx, normalized);
 						computeSynchronizedBlockFoldingStructure(element, ctx, normalized);
+						*/
+						computeCodeBlockFoldngStructure(element, ctx, normalized);
 					}
 				}
 			}
+		}
+	}
+	
+	private void computeCodeBlockFoldngStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+		try {
+			ISourceReference srcRef= (ISourceReference) element;
+			String contents= null;
+			try {
+				contents= srcRef.getSource();
+			} catch (JavaModelException e) {
+			}
+			
+			int pos= 0;
+			boolean inSingleLineComment= false;
+			boolean inBlockComment= false;
+			boolean inStringLiteral= false;
+			boolean inString= false;
+			while (pos < contents.length()) {
+				if (contents.charAt(pos) == '/') {
+					if (contents.charAt(pos + 1) == '/') { // Java comment
+						inSingleLineComment= true;
+					}
+					else if (contents.charAt(pos + 1) == '*') { // Java block comment
+						inBlockComment= true;
+						int subpos= ++pos;
+						while (true) {
+							if (contents.charAt(subpos) == '*') {
+								if (contents.charAt(subpos + 1) == '/') {
+									subpos++;
+									break;
+								}
+							}
+							subpos++;
+						}
+						subpos++;
+						Position position= new CommentPosition(region.getOffset() + pos, subpos - pos - 1);
+						ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, true), position);
+					}
+				}
+				else if (contents.charAt(pos) == '*') {
+					if (contents.charAt(pos + 1) == '/') { // End of java block comment
+						inBlockComment= false;
+					}
+				}
+				else if (contents.charAt(pos) == '\'') { // String literal
+					if (!inString)
+						inStringLiteral= !inStringLiteral;
+				}
+				else if (contents.charAt(pos) == '"') { // String
+					if (!inStringLiteral)
+						inString= !inString;
+				}
+				else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
+					inSingleLineComment= false;
+				}
+				else if (!(inSingleLineComment || inBlockComment || inString || inStringLiteral)) {
+					if (contents.charAt(pos) == 'c') {
+						if (contents.charAt(pos + 1) == 'a') {
+							if (contents.charAt(pos + 2) == 's') {
+								if (contents.charAt(pos + 3) == 'e') { // case
+									/*
+									int start= pos;
+									pos += "case".length() - 1;
+									int subpos= pos;
+									while (true) {
+										if (contents.charAt(pos) == '/') {
+											if (contents.charAt(pos + 1) == '/') { // Java comment
+												inSingleLineComment= true;
+											}
+											else if (contents.charAt(pos + 1) == '*') { // Java block comment
+												inBlockComment= true;
+											}
+										}
+										else if (contents.charAt(pos) == '*') {
+											if (contents.charAt(pos + 1) == '/') { // End of java block comment
+												inBlockComment= false;
+											}
+										}
+										else if (contents.charAt(pos) == '\'') { // String literal
+											if (!inString)
+												inStringLiteral= !inStringLiteral;
+										}
+										else if (contents.charAt(pos) == '"') { // String
+											if (!inStringLiteral)
+												inString= !inString;
+										}
+										else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
+											inSingleLineComment= false;
+										}
+										else if (!(inBlockComment || inSingleLineComment || inString || inStringLiteral)) {
+											if (contents.charAt(subpos) == 'b') {
+												if (contents.charAt(subpos + 1) == 'r') {
+													if (contents.charAt(subpos + 2) == 'e') {
+														if (contents.charAt(subpos + 3) == 'a') {
+															if (contents.charAt(subpos + 4) == 'k') { // break
+																subpos += 5;
+																while (contents.charAt(subpos) != ';') {
+																	subpos++;
+																}
+																break;
+															}
+														}
+													}
+												}
+											}
+											else if (contents.charAt(subpos) == 'r') {
+												if (contents.charAt(subpos + 1) == 'e') {
+													if (contents.charAt(subpos + 2) == 't') {
+														if (contents.charAt(subpos + 3) == 'u') {
+															if (contents.charAt(subpos + 4) == 'r') {
+																if (contents.charAt(subpos + 5) == 'n') { // return
+																	subpos += 5;
+																	while (contents.charAt(subpos) != ';') {
+																		subpos++;
+																	}
+																	break;
+																}
+															}
+														}
+													}
+												}
+											}
+											else if (contents.charAt(subpos) == 'c') {
+												if (contents.charAt(subpos + 1) == 'o') {
+													if (contents.charAt(subpos + 2) == 'n') {
+														if (contents.charAt(subpos + 3) == 't') {
+															if (contents.charAt(subpos + 4) == 'i') {
+																if (contents.charAt(subpos + 5) == 'n') {
+																	if (contents.charAt(subpos + 6) == 'u') {
+																		if (contents.charAt(subpos + 7) == 'e') { // continue
+																			subpos += 5;
+																			while (contents.charAt(subpos) != ';') {
+																				subpos++;
+																			}
+																			break;
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+										subpos++;
+									}
+									Position position= new Position(region.getOffset() + start, subpos - start - 1);
+									ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSwitches, element, false), position);
+									*/
+								}
+							}
+							else if (contents.charAt(pos + 2) == 't') {
+								if (contents.charAt(pos + 3) == 'c') {
+									if (contents.charAt(pos + 4) == 'h') { // catch
+										int start= pos;
+										pos += "catch".length() - 1;
+										int level= 0;
+										int subpos= pos;
+										while (contents.charAt(subpos) != '{') {
+											subpos++;
+										}
+										subpos++;
+										pos= subpos;
+										while (level != -1) {
+											if (contents.charAt(subpos) == '{') {
+												level++;
+											}
+											else if (contents.charAt(subpos) == '}') {
+												level--;
+											}
+											subpos++;
+										}
+										Position position= new Position(region.getOffset() + start, subpos - start - 1);
+										ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+									}
+								}
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 'd') {
+						if (contents.charAt(pos + 1) == 'e') {
+							if (contents.charAt(pos + 2) == 'f') {
+								if (contents.charAt(pos + 3) == 'a') {
+									if (contents.charAt(pos + 4) == 'u') {
+										if (contents.charAt(pos + 5) == 'l') {
+											if (contents.charAt(pos + 6) == 't') { // default
+												/*
+												int start= pos;
+												pos += "default".length() - 1;
+												int subpos= pos;
+												while (true) {
+													if (contents.charAt(pos) == '/') {
+														if (contents.charAt(pos + 1) == '/') { // Java comment
+															inSingleLineComment= true;
+														}
+														else if (contents.charAt(pos + 1) == '*') { // Java block comment
+															inBlockComment= true;
+														}
+													}
+													else if (contents.charAt(pos) == '*') {
+														if (contents.charAt(pos + 1) == '/') { // End of java block comment
+															inBlockComment= false;
+														}
+													}
+													else if (contents.charAt(pos) == '\'') { // String literal
+														if (!inString)
+															inStringLiteral= !inStringLiteral;
+													}
+													else if (contents.charAt(pos) == '"') { // String
+														if (!inStringLiteral)
+															inString= !inString;
+													}
+													else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
+														inSingleLineComment= false;
+													}
+													else if (!(inBlockComment || inSingleLineComment || inString || inStringLiteral)) {
+														if (contents.charAt(subpos) == 'b') {
+															if (contents.charAt(subpos + 1) == 'r') {
+																if (contents.charAt(subpos + 2) == 'e') {
+																	if (contents.charAt(subpos + 3) == 'a') {
+																		if (contents.charAt(subpos + 4) == 'k') { // break
+																			subpos += 5;
+																			while (contents.charAt(subpos) != ';') {
+																				subpos++;
+																			}
+																			break;
+																		}
+																	}
+																}
+															}
+														}
+														else if (contents.charAt(subpos) == 'r') {
+															if (contents.charAt(subpos + 1) == 'e') {
+																if (contents.charAt(subpos + 2) == 't') {
+																	if (contents.charAt(subpos + 3) == 'u') {
+																		if (contents.charAt(subpos + 4) == 'r') {
+																			if (contents.charAt(subpos + 5) == 'n') { // return
+																				subpos += 5;
+																				while (contents.charAt(subpos) != ';') {
+																					subpos++;
+																				}
+																				break;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+														else if (contents.charAt(subpos) == 'c') {
+															if (contents.charAt(subpos + 1) == 'o') {
+																if (contents.charAt(subpos + 2) == 'n') {
+																	if (contents.charAt(subpos + 3) == 't') {
+																		if (contents.charAt(subpos + 4) == 'i') {
+																			if (contents.charAt(subpos + 5) == 'n') {
+																				if (contents.charAt(subpos + 6) == 'u') {
+																					if (contents.charAt(subpos + 7) == 'e') { // continue
+																						subpos += 5;
+																						while (contents.charAt(subpos) != ';') {
+																							subpos++;
+																						}
+																						break;
+																					}
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+													subpos++;
+												}
+												Position position= new Position(region.getOffset() + start, subpos - start - 1);
+												ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSwitches, element, false), position);
+												*/
+											}
+										}
+									}
+								}
+							}
+						}
+						else if (contents.charAt(pos + 1) == 'o') { // do
+							int start= pos;
+							pos += "do".length() - 1;
+							int level= 0;
+							int subpos= pos;
+							while (contents.charAt(subpos) != '{') {
+								subpos++;
+							}
+							subpos++;
+							pos= subpos;
+							while (level != -1) {
+								if (contents.charAt(subpos) == '{') {
+									level++;
+								}
+								else if (contents.charAt(subpos) == '}') {
+									level--;
+								}
+								subpos++;
+							}
+							Position position= new Position(region.getOffset() + start, subpos - start - 1);
+							ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+						}
+					}
+					else if (contents.charAt(pos) == 'e') {
+						if (contents.charAt(pos + 1) == 'l') {
+							if (contents.charAt(pos + 2) == 's') {
+								if (contents.charAt(pos + 3) == 'e') { // else
+									int subpos= pos;
+									while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
+										subpos++;
+									}
+									if (contents.charAt(subpos) == '{') {
+										int level= 0;
+										subpos++;
+										while (level != -1) {
+											if (contents.charAt(subpos) == '{') {
+												level++;
+											}
+											else if (contents.charAt(subpos) == '}') {
+												level--;
+											}
+											subpos++;
+										}
+										Position position= new Position(region.getOffset() + pos, subpos - pos);
+										ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseConditionals, element, false), position);
+									}
+								}
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 'f') {
+						if (contents.charAt(pos + 1) == 'i') {
+							if (contents.charAt(pos + 2) == 'n') {
+								if (contents.charAt(pos + 3) == 'a') {
+									if (contents.charAt(pos + 4) == 'l') {
+										if (contents.charAt(pos + 5) == 'l') {
+											if (contents.charAt(pos + 6) == 'y') { // finally
+												int start= pos;
+												pos += "finally".length() - 1;
+												int level= 0;
+												int subpos= pos;
+												while (contents.charAt(subpos) != '{') {
+													subpos++;
+												}
+												subpos++;
+												pos= subpos;
+												while (level != -1) {
+													if (contents.charAt(subpos) == '{') {
+														level++;
+													}
+													else if (contents.charAt(subpos) == '}') {
+														level--;
+													}
+													subpos++;
+												}
+												Position position= new Position(region.getOffset() + start, subpos - start - 1);
+												ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+											}
+										}
+									}
+								}
+							}
+						}
+						else if (contents.charAt(pos + 1) == 'o') {
+							if (contents.charAt(pos + 2) == 'r') { // for
+								int subpos= pos;
+								while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
+									subpos++;
+								}
+								if (contents.charAt(subpos) == '{') {
+									int level= 0;
+									subpos++;
+									while (level != -1) {
+										if (contents.charAt(subpos) == '{') {
+											level++;
+										}
+										else if (contents.charAt(subpos) == '}') {
+											level--;
+										}
+										subpos++;
+									}
+									Position position= new Position(region.getOffset() + pos, subpos - pos);
+									ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+								}
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 'i') {
+						if (contents.charAt(pos + 1) == 'f') { // if
+							int subpos= pos;
+							while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
+								subpos++;
+							}
+							if (contents.charAt(subpos) == '{') {
+								int level= 0;
+								subpos++;
+								while (level != -1) {
+									if (contents.charAt(subpos) == '{') {
+										level++;
+									}
+									else if (contents.charAt(subpos) == '}') {
+										level--;
+									}
+									subpos++;
+								}
+								Position position= new Position(region.getOffset() + pos, subpos - pos);
+								ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseConditionals, element, false), position);
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 's') {
+						if (contents.charAt(pos + 1) == 'w') {
+							if (contents.charAt(pos + 2) == 'i') {
+								if (contents.charAt(pos + 3) == 't') {
+									if (contents.charAt(pos + 4) == 'c') {
+										if (contents.charAt(pos + 5) == 'h') { // switch
+											int subpos= pos;
+											while (contents.charAt(subpos) != '{') {
+												subpos++;
+											}
+											if (contents.charAt(subpos) == '{') {
+												int level= 0;
+												subpos++;
+												while (level != -1) {
+													if (contents.charAt(subpos) == '{') {
+														level++;
+													}
+													else if (contents.charAt(subpos) == '}') {
+														level--;
+													}
+													subpos++;
+												}
+											}
+											Position position= new Position(region.getOffset() + pos, subpos - pos);
+											ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSwitches, element, false), position);
+										}
+									}
+								}
+							}
+						}
+						else if (contents.charAt(pos + 1) == 'y') {
+							if (contents.charAt(pos + 2) == 'n') {
+								if (contents.charAt(pos + 3) == 'c') {
+									if (contents.charAt(pos + 4) == 'r') {
+										if (contents.charAt(pos + 5) == 'o') {
+											if (contents.charAt(pos + 6) == 'n') {
+												if (contents.charAt(pos + 7) == 'i') {
+													if (contents.charAt(pos + 8) == 'z') {
+														if (contents.charAt(pos + 9) == 'e') {
+															if (contents.charAt(pos + 10) == 'd') { // synchronized
+																int subpos= pos;
+																while (contents.charAt(subpos) != '{') {
+																	subpos++;
+																}
+																if (contents.charAt(subpos) == '{') {
+																	int level= 0;
+																	subpos++;
+																	while (level != -1) {
+																		if (contents.charAt(subpos) == '{') {
+																			level++;
+																		}
+																		else if (contents.charAt(subpos) == '}') {
+																			level--;
+																		}
+																		subpos++;
+																	}
+																}
+																Position position= new Position(region.getOffset() + pos, subpos - pos);
+																ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSynchronizeds, element, false), position);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 't') {
+						if (contents.charAt(pos + 1) == 'r') {
+							if (contents.charAt(pos + 2) == 'y') { // try
+								int start= pos;
+								pos += "try".length() - 1;
+								int level= 0;
+								int subpos= pos;
+								while (contents.charAt(subpos) != '{') {
+									subpos++;
+								}
+								subpos++;
+								pos= subpos;
+								while (level != -1) {
+									if (contents.charAt(subpos) == '{') {
+										level++;
+									}
+									else if (contents.charAt(subpos) == '}') {
+										level--;
+									}
+									subpos++;
+								}
+								Position position= new Position(region.getOffset() + start, subpos - start - 1);
+								ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+							}
+						}
+					}
+					else if (contents.charAt(pos) == 'w') {
+						if (contents.charAt(pos + 1) == 'h') {
+							if (contents.charAt(pos + 2) == 'i') {
+								if (contents.charAt(pos + 3) == 'l') {
+									if (contents.charAt(pos + 4) == 'e') { // while
+										int subpos= pos;
+										while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
+											subpos++;
+										}
+										if (contents.charAt(subpos) == '{') {
+											int level= 0;
+											subpos++;
+											while (level != -1) {
+												if (contents.charAt(subpos) == '{') {
+													level++;
+												}
+												else if (contents.charAt(subpos) == '}') {
+													level--;
+												}
+												subpos++;
+											}
+											Position position= new Position(region.getOffset() + pos, subpos - pos);
+											ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				pos++;
+			}
+		} catch (StringIndexOutOfBoundsException exception) {
 		}
 	}
 	

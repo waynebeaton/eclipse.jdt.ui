@@ -3289,6 +3289,12 @@ public class PreferenceConstants {
 	 * @since 3.1
 	 */
 	public static final String EDITOR_FOLDING_HEADERS= "editor_folding_default_headers"; //$NON-NLS-1$
+	
+	public static final String EDITOR_FOLDING_TRYS= "editor_folding_trys";
+	public static final String EDITOR_FOLDING_CONDITIONALS= "editor_folding_conditionals";
+	public static final String EDITOR_FOLDING_SWITCHES= "editor_folding_switches";
+	public static final String EDITOR_FOLDING_LOOPS= "editor_folding_loops";
+	public static final String EDITOR_FOLDING_SYNCHRONIZEDS= "editor_folding_synchronizeds";
 
 	/**
 	 * A named preference that holds the methods or types whose methods are by default expanded with
