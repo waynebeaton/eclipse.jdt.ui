@@ -1120,8 +1120,9 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 							subpos++;
 						}
 						subpos++;
-						Position position= new CommentPosition(region.getOffset() + pos, subpos - pos - 1);
-						ctx.addProjectionRange(new JavaProjectionAnnotation(false, element, true), position);
+						IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+						Position position= createCommentPosition(normalized);
+						ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
 					}
 				}
 				else if (contents.charAt(pos) == '*') {
