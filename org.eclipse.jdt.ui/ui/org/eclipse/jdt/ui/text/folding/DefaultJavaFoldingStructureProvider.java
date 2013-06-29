@@ -1101,7 +1101,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			boolean inBlockComment= false;
 			boolean inStringLiteral= false;
 			boolean inString= false;
-			String lastBlockToken= "";
+			String lastBlockToken= ""; //$NON-NLS-1$
 			while (pos < contents.length()) {
 				if (contents.charAt(pos) == '/') {
 					if (contents.charAt(pos + 1) == '/') { // Java comment
@@ -1143,7 +1143,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 				}
 				else if (!(inSingleLineComment || inBlockComment || inString || inStringLiteral)) {
 					if (contents.charAt(pos) == '{') {
-						if (lastBlockToken == "") {
+						if (lastBlockToken == "") { //$NON-NLS-1$
 							int level= 0;
 							int subpos= pos;
 							subpos++;
@@ -1167,8 +1167,8 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 							if (contents.charAt(pos + 2) == 't') {
 								if (contents.charAt(pos + 3) == 'c') {
 									if (contents.charAt(pos + 4) == 'h') { // catch
-										lastBlockToken= "catch";
-										pos += "catch".length() - 1;
+										lastBlockToken= "catch"; //$NON-NLS-1$
+										pos += "catch".length() - 1; //$NON-NLS-1$
 										int level= 0;
 										int subpos= pos;
 										while (contents.charAt(subpos) != '{') {
@@ -1195,8 +1195,8 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					}
 					else if (contents.charAt(pos) == 'd') {
 						if (contents.charAt(pos + 1) == 'o') { // do
-								lastBlockToken= "do";
-								pos += "do".length() - 1;
+								lastBlockToken= "do"; //$NON-NLS-1$
+								pos += "do".length() - 1; //$NON-NLS-1$
 								int level= 0;
 								int subpos= pos;
 								while (contents.charAt(subpos) != '{') {
@@ -1222,13 +1222,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						if (contents.charAt(pos + 1) == 'l') {
 							if (contents.charAt(pos + 2) == 's') {
 								if (contents.charAt(pos + 3) == 'e') { // else
-									lastBlockToken= "else";
+									lastBlockToken= "else"; //$NON-NLS-1$
 									int subpos= pos;
 									while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 										subpos++;
 									}
 									if (contents.charAt(subpos) == '{') {
-										lastBlockToken= "";
+										lastBlockToken= ""; //$NON-NLS-1$
 										int level= 0;
 										subpos++;
 										while (level != -1) {
@@ -1255,8 +1255,8 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									if (contents.charAt(pos + 4) == 'l') {
 										if (contents.charAt(pos + 5) == 'l') {
 											if (contents.charAt(pos + 6) == 'y') { // finally
-												lastBlockToken= "finally";
-												pos += "finally".length() - 1;
+												lastBlockToken= "finally"; //$NON-NLS-1$
+												pos += "finally".length() - 1; //$NON-NLS-1$
 												int level= 0;
 												int subpos= pos;
 												while (contents.charAt(subpos) != '{') {
@@ -1266,7 +1266,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 												pos= subpos;
 												while (level != -1) {
 													if (contents.charAt(subpos) == '{') {
-														lastBlockToken= "";
+														lastBlockToken= ""; //$NON-NLS-1$
 														level++;
 													}
 													else if (contents.charAt(subpos) == '}') {
@@ -1285,7 +1285,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						}
 						else if (contents.charAt(pos + 1) == 'o') {
 							if (contents.charAt(pos + 2) == 'r') { // for
-								lastBlockToken= "for";
+								lastBlockToken= "for"; //$NON-NLS-1$
 								int subpos= pos;
 								while (contents.charAt(subpos) != '(') {
 									subpos++;
@@ -1305,7 +1305,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									subpos++;
 								}
 								if (contents.charAt(subpos) == '{') {
-									lastBlockToken= "";
+									lastBlockToken= ""; //$NON-NLS-1$
 									int level= 0;
 									subpos++;
 									while (level != -1) {
@@ -1326,13 +1326,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					}
 					else if (contents.charAt(pos) == 'i') {
 						if (contents.charAt(pos + 1) == 'f') { // if
-							lastBlockToken= "if";
+							lastBlockToken= "if"; //$NON-NLS-1$
 							int subpos= pos;
 							while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 								subpos++;
 							}
 							if (contents.charAt(subpos) == '{') {
-								lastBlockToken= "";
+								lastBlockToken= ""; //$NON-NLS-1$
 								int level= 0;
 								subpos++;
 								while (level != -1) {
@@ -1356,13 +1356,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								if (contents.charAt(pos + 3) == 't') {
 									if (contents.charAt(pos + 4) == 'c') {
 										if (contents.charAt(pos + 5) == 'h') { // switch
-											lastBlockToken= "switch";
+											lastBlockToken= "switch"; //$NON-NLS-1$
 											int subpos= pos;
 											while (contents.charAt(subpos) != '{') {
 												subpos++;
 											}
 											if (contents.charAt(subpos) == '{') {
-												lastBlockToken= "";
+												lastBlockToken= ""; //$NON-NLS-1$
 												int level= 0;
 												subpos++;
 												while (level != -1) {
@@ -1394,13 +1394,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 														if (contents.charAt(pos + 9) == 'z') {
 															if (contents.charAt(pos + 10) == 'e') {
 																if (contents.charAt(pos + 11) == 'd') { // synchronized
-																	lastBlockToken= "synchronized";
+																	lastBlockToken= "synchronized"; //$NON-NLS-1$
 																	int subpos= pos;
 																	while (contents.charAt(subpos) != '{') {
 																		subpos++;
 																	}
 																	if (contents.charAt(subpos) == '{') {
-																		lastBlockToken= "";
+																		lastBlockToken= ""; //$NON-NLS-1$
 																		int level= 0;
 																		subpos++;
 																		while (level != -1) {
@@ -1431,14 +1431,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					else if (contents.charAt(pos) == 't') {
 						if (contents.charAt(pos + 1) == 'r') {
 							if (contents.charAt(pos + 2) == 'y') { // try
-								lastBlockToken= "try";
-								pos += "try".length() - 1;
+								lastBlockToken= "try"; //$NON-NLS-1$
+								pos += "try".length() - 1; //$NON-NLS-1$
 								int level= 0;
 								int subpos= pos;
 								while (contents.charAt(subpos) != '{') {
 									subpos++;
 								}
-								lastBlockToken= "";
+								lastBlockToken= ""; //$NON-NLS-1$
 								subpos++;
 								pos= subpos;
 								while (level != -1) {
@@ -1461,13 +1461,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 							if (contents.charAt(pos + 2) == 'i') {
 								if (contents.charAt(pos + 3) == 'l') {
 									if (contents.charAt(pos + 4) == 'e') { // while
-										lastBlockToken= "while";
+										lastBlockToken= "while"; //$NON-NLS-1$
 										int subpos= pos;
 										while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 											subpos++;
 										}
 										if (contents.charAt(subpos) == '{') {
-											lastBlockToken= "";
+											lastBlockToken= ""; //$NON-NLS-1$
 											int level= 0;
 											subpos++;
 											while (level != -1) {
