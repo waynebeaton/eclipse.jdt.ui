@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.ui; singleton:=true
-Bundle-Version: 3.9.0.qualifier
+Bundle-Version: 3.9.100.qualifier
 Bundle-Activator: org.eclipse.jdt.internal.ui.JavaPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
@@ -139,5 +139,6 @@ Require-Bundle:
  org.eclipse.ui.navigator;bundle-version="[3.3.200,4.0.0)",
  org.eclipse.ui.navigator.resources;bundle-version="[3.4.0,4.0.0)",
  org.eclipse.jdt.core.manipulation;bundle-version="[1.4.0,2.0.0)",
- com.ibm.icu;bundle-version="4.4.2"
+ com.ibm.icu;bundle-version="4.4.2",
+ org.eclipse.equinox.bidi;bundle-version="[0.10.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
