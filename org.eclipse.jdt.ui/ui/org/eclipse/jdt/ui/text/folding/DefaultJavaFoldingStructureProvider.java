@@ -1263,7 +1263,20 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						else if (contents.charAt(pos + 1) == 'o') {
 							if (contents.charAt(pos + 2) == 'r') { // for
 								int subpos= pos;
-								// TODO: Fix the parsing error where we see the semicolon inside the for conditions.
+								while (contents.charAt(subpos) != '(') {
+									subpos++;
+								}
+								int plevel= 0;
+								subpos++;
+								while (plevel != -1) {
+									if (contents.charAt(subpos) == '(') {
+										plevel++;
+									}
+									else if (contents.charAt(subpos) == ')') {
+										plevel--;
+									}
+									subpos++;
+								}
 								while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 									subpos++;
 								}
