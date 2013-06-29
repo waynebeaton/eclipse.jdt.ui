@@ -1102,6 +1102,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			boolean inBlockComment= false;
 			boolean inStringLiteral= false;
 			boolean inString= false;
+			String lastBlockToken= "";
 			while (pos < contents.length()) {
 				if (contents.charAt(pos) == '/') {
 					if (contents.charAt(pos + 1) == '/') { // Java comment
@@ -1142,12 +1143,32 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					inSingleLineComment= false;
 				}
 				else if (!(inSingleLineComment || inBlockComment || inString || inStringLiteral)) {
-					if (contents.charAt(pos) == 'c') {
+					if (contents.charAt(pos) == '{') {
+						if (lastBlockToken == "") {
+							int level= 0;
+							int subpos= pos;
+							subpos++;
+							pos= subpos;
+							while (level != -1) {
+								if (contents.charAt(subpos) == '{') {
+									level++;
+								}
+								else if (contents.charAt(subpos) == '}') {
+									level--;
+								}
+								subpos++;
+							}
+							IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+							Position position= new Position(normalized.getOffset(), normalized.getLength());
+							ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseUnnameds, element, false), position);
+						}
+					}
+					else if (contents.charAt(pos) == 'c') {
 						if (contents.charAt(pos + 1) == 'a') {
 							if (contents.charAt(pos + 2) == 't') {
 								if (contents.charAt(pos + 3) == 'c') {
 									if (contents.charAt(pos + 4) == 'h') { // catch
-										int start= pos;
+										lastBlockToken= "catch";
 										pos += "catch".length() - 1;
 										int level= 0;
 										int subpos= pos;
@@ -1175,7 +1196,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					}
 					else if (contents.charAt(pos) == 'd') {
 						if (contents.charAt(pos + 1) == 'o') { // do
-								int start= pos;
+								lastBlockToken= "do";
 								pos += "do".length() - 1;
 								int level= 0;
 								int subpos= pos;
@@ -1202,11 +1223,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						if (contents.charAt(pos + 1) == 'l') {
 							if (contents.charAt(pos + 2) == 's') {
 								if (contents.charAt(pos + 3) == 'e') { // else
+									lastBlockToken= "else";
 									int subpos= pos;
 									while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 										subpos++;
 									}
 									if (contents.charAt(subpos) == '{') {
+										lastBlockToken= "";
 										int level= 0;
 										subpos++;
 										while (level != -1) {
@@ -1233,7 +1256,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									if (contents.charAt(pos + 4) == 'l') {
 										if (contents.charAt(pos + 5) == 'l') {
 											if (contents.charAt(pos + 6) == 'y') { // finally
-												int start= pos;
+												lastBlockToken= "finally";
 												pos += "finally".length() - 1;
 												int level= 0;
 												int subpos= pos;
@@ -1244,6 +1267,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 												pos= subpos;
 												while (level != -1) {
 													if (contents.charAt(subpos) == '{') {
+														lastBlockToken= "";
 														level++;
 													}
 													else if (contents.charAt(subpos) == '}') {
@@ -1262,6 +1286,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						}
 						else if (contents.charAt(pos + 1) == 'o') {
 							if (contents.charAt(pos + 2) == 'r') { // for
+								lastBlockToken= "for";
 								int subpos= pos;
 								while (contents.charAt(subpos) != '(') {
 									subpos++;
@@ -1281,6 +1306,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									subpos++;
 								}
 								if (contents.charAt(subpos) == '{') {
+									lastBlockToken= "";
 									int level= 0;
 									subpos++;
 									while (level != -1) {
@@ -1301,11 +1327,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					}
 					else if (contents.charAt(pos) == 'i') {
 						if (contents.charAt(pos + 1) == 'f') { // if
+							lastBlockToken= "if";
 							int subpos= pos;
 							while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 								subpos++;
 							}
 							if (contents.charAt(subpos) == '{') {
+								lastBlockToken= "";
 								int level= 0;
 								subpos++;
 								while (level != -1) {
@@ -1329,11 +1357,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								if (contents.charAt(pos + 3) == 't') {
 									if (contents.charAt(pos + 4) == 'c') {
 										if (contents.charAt(pos + 5) == 'h') { // switch
+											lastBlockToken= "switch";
 											int subpos= pos;
 											while (contents.charAt(subpos) != '{') {
 												subpos++;
 											}
 											if (contents.charAt(subpos) == '{') {
+												lastBlockToken= "";
 												int level= 0;
 												subpos++;
 												while (level != -1) {
@@ -1357,33 +1387,37 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						else if (contents.charAt(pos + 1) == 'y') {
 							if (contents.charAt(pos + 2) == 'n') {
 								if (contents.charAt(pos + 3) == 'c') {
-									if (contents.charAt(pos + 4) == 'r') {
-										if (contents.charAt(pos + 5) == 'o') {
-											if (contents.charAt(pos + 6) == 'n') {
-												if (contents.charAt(pos + 7) == 'i') {
-													if (contents.charAt(pos + 8) == 'z') {
-														if (contents.charAt(pos + 9) == 'e') {
-															if (contents.charAt(pos + 10) == 'd') { // synchronized
-																int subpos= pos;
-																while (contents.charAt(subpos) != '{') {
-																	subpos++;
-																}
-																if (contents.charAt(subpos) == '{') {
-																	int level= 0;
-																	subpos++;
-																	while (level != -1) {
-																		if (contents.charAt(subpos) == '{') {
-																			level++;
-																		}
-																		else if (contents.charAt(subpos) == '}') {
-																			level--;
-																		}
+									if (contents.charAt(pos + 4) == 'h') {
+										if (contents.charAt(pos + 5) == 'r') {
+											if (contents.charAt(pos + 6) == 'o') {
+												if (contents.charAt(pos + 7) == 'n') {
+													if (contents.charAt(pos + 8) == 'i') {
+														if (contents.charAt(pos + 9) == 'z') {
+															if (contents.charAt(pos + 10) == 'e') {
+																if (contents.charAt(pos + 11) == 'd') { // synchronized
+																	lastBlockToken= "synchronized";
+																	int subpos= pos;
+																	while (contents.charAt(subpos) != '{') {
 																		subpos++;
 																	}
+																	if (contents.charAt(subpos) == '{') {
+																		lastBlockToken= "";
+																		int level= 0;
+																		subpos++;
+																		while (level != -1) {
+																			if (contents.charAt(subpos) == '{') {
+																				level++;
+																			}
+																			else if (contents.charAt(subpos) == '}') {
+																				level--;
+																			}
+																			subpos++;
+																		}
+																	}
+																	IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+																	Position position= new Position(normalized.getOffset(), normalized.getLength());
+																	ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSynchronizeds, element, false), position);
 																}
-																IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
-																Position position= new Position(normalized.getOffset(), normalized.getLength());
-																ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSynchronizeds, element, false), position);
 															}
 														}
 													}
@@ -1398,13 +1432,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					else if (contents.charAt(pos) == 't') {
 						if (contents.charAt(pos + 1) == 'r') {
 							if (contents.charAt(pos + 2) == 'y') { // try
-								int start= pos;
+								lastBlockToken= "try";
 								pos += "try".length() - 1;
 								int level= 0;
 								int subpos= pos;
 								while (contents.charAt(subpos) != '{') {
 									subpos++;
 								}
+								lastBlockToken= "";
 								subpos++;
 								pos= subpos;
 								while (level != -1) {
@@ -1427,11 +1462,13 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 							if (contents.charAt(pos + 2) == 'i') {
 								if (contents.charAt(pos + 3) == 'l') {
 									if (contents.charAt(pos + 4) == 'e') { // while
+										lastBlockToken= "while";
 										int subpos= pos;
 										while (contents.charAt(subpos) != '{' && contents.charAt(subpos) != ';') {
 											subpos++;
 										}
 										if (contents.charAt(subpos) == '{') {
+											lastBlockToken= "";
 											int level= 0;
 											subpos++;
 											while (level != -1) {
