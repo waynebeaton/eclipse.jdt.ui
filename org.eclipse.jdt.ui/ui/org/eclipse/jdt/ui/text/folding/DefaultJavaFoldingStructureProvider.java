@@ -710,8 +710,6 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 	private boolean fCollapseInnerTypes= true;
 	private boolean fCollapseMembers= false;
 	private boolean fCollapseHeaderComments= true;
-	
-	// TODO: Implement the following preferences for general java code block folding
 	private boolean fCollapseConditionals= false;
 	private boolean fCollapseLoops= false;
 	private boolean fCollapseSynchronizeds= false;
@@ -895,6 +893,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		fCollapseLoops= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_LOOPS);
 		fCollapseTrys= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_TRYS);
 		fCollapseSynchronizeds= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_SYNCHRONIZEDS);
+		fCollapseUnnameds= store.getBoolean(PreferenceConstants.EDITOR_FOLDING_UNNAMEDS);
 	}
 
 	private void update(FoldingStructureComputationContext ctx) {
