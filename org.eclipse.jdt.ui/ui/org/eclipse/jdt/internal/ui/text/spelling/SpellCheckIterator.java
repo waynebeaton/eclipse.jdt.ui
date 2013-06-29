@@ -62,7 +62,7 @@ public class SpellCheckIterator implements ISpellCheckIterator {
 	protected int fPrevious= 0;
 
 	/** The sentence breaks */
-	private final LinkedList<Integer> fSentenceBreaks= new LinkedList<Integer>();
+	private final LinkedList fSentenceBreaks= new LinkedList();
 
 	/** Does the current word start a sentence? */
 	private boolean fStartsSentence= false;
@@ -299,7 +299,7 @@ public class SpellCheckIterator implements ISpellCheckIterator {
 	 * @return the next sentence break
 	 */
 	protected final int nextSentence() {
-		return fSentenceBreaks.getFirst().intValue();
+		return ((Integer) fSentenceBreaks.getFirst()).intValue();
 	}
 
 	/**
