@@ -3295,6 +3295,7 @@ public class PreferenceConstants {
 	public static final String EDITOR_FOLDING_SWITCHES= "editor_folding_switches";
 	public static final String EDITOR_FOLDING_LOOPS= "editor_folding_loops";
 	public static final String EDITOR_FOLDING_SYNCHRONIZEDS= "editor_folding_synchronizeds";
+	public static final String EDITOR_FOLDING_UNNAMEDS= "editor_folding_unnameds";
 
 	/**
 	 * A named preference that holds the methods or types whose methods are by default expanded with
