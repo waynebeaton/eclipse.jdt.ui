@@ -1153,7 +1153,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			int pos= 0;
 			boolean inSingleLineComment= false;
 			boolean inBlockComment= false;
-			boolean inStringLiteral= false;
+			boolean inCharLiteral= false;
 			boolean inString= false;
 			String lastBlockToken= ""; //$NON-NLS-1$
 			while (pos < contents.length()) {
@@ -1186,18 +1186,18 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						inBlockComment= false;
 					}
 				}
-				else if (contents.charAt(pos) == '\'') { // String literal
+				else if (contents.charAt(pos) == '\'') { // Character literal
 					if (!inString)
-						inStringLiteral= !inStringLiteral;
+						inCharLiteral= !inCharLiteral;
 				}
 				else if (contents.charAt(pos) == '"') { // String
-					if (!inStringLiteral)
+					if (!inCharLiteral)
 						inString= !inString;
 				}
 				else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
 					inSingleLineComment= false;
 				}
-				else if (!(inSingleLineComment || inBlockComment || inString || inStringLiteral)) {
+				else if (!(inSingleLineComment || inBlockComment || inString || inCharLiteral)) {
 					if (contents.charAt(pos) == '{') {
 						if (lastBlockToken == "") { //$NON-NLS-1$
 							int level= 0;
