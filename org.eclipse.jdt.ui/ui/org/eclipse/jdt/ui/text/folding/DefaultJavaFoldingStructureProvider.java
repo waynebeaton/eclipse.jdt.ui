@@ -1147,7 +1147,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 						if (normalized != null) {
 							Position position= createCommentPosition(normalized);
-							ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+							ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseJavadoc(), element, false), position);
 						}
 					}
 				}
@@ -1186,7 +1186,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 							IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 							if (normalized != null) {
 								Position position= new Position(normalized.getOffset(), normalized.getLength());
-								ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseUnnameds, element, false), position);
+								ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseUnnameds(), element, false), position);
 							}
 						}
 					}
@@ -1216,7 +1216,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 										IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 										if (normalized != null) {
 											Position position= new Position(normalized.getOffset(), normalized.getLength());
-											ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+											ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
 										}
 									}
 								}
@@ -1246,7 +1246,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
-									ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
 								}
 						}
 					}
@@ -1275,7 +1275,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 										IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 										if (normalized != null) {
 											Position position= new Position(normalized.getOffset(), normalized.getLength());
-											ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseConditionals, element, false), position);
+											ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseConditionals(), element, false), position);
 										}
 									}
 								}
@@ -1311,7 +1311,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 												IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 												if (normalized != null) {
 													Position position= new Position(normalized.getOffset(), normalized.getLength());
-													ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+													ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
 												}
 											}
 										}
@@ -1356,7 +1356,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 									if (normalized != null) {
 										Position position= new Position(normalized.getOffset(), normalized.getLength());
-										ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+										ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
 									}
 								}
 							}
@@ -1385,7 +1385,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
-									ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseConditionals, element, false), position);
+									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseConditionals(), element, false), position);
 								}
 							}
 						}
@@ -1418,7 +1418,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 											IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 											if (normalized != null) {
 												Position position= new Position(normalized.getOffset(), normalized.getLength());
-												ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSwitches, element, false), position);
+												ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseSwitches(), element, false), position);
 											}
 										}
 									}
@@ -1458,7 +1458,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 																	IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 																	if (normalized != null) {
 																		Position position= new Position(normalized.getOffset(), normalized.getLength());
-																		ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseSynchronizeds, element, false), position);
+																		ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseSynchronizeds(), element, false), position);
 																	}
 																}
 															}
@@ -1497,7 +1497,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
-									ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseTrys, element, false), position);
+									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
 								}
 							}
 						}
@@ -1528,7 +1528,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 											IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 											if (normalized != null) {
 												Position position= new Position(normalized.getOffset(), normalized.getLength());
-												ctx.addProjectionRange(new JavaProjectionAnnotation(fCollapseLoops, element, false), position);
+												ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
 											}
 										}
 									}
