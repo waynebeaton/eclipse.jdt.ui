@@ -221,27 +221,57 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		public boolean collapseMembers() {
 			return fAllowCollapsing && fCollapseMembers;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if try/catch/finally blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if try/catch/finally blocks should be collapsed
+		 */
 		public boolean collapseTrys() {
 			return fAllowCollapsing && fCollapseTrys;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if for/while/do-while blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if for/while/do-while blocks should be collapsed
+		 */
 		public boolean collapseLoops() {
 			return fAllowCollapsing && fCollapseLoops;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if if/else-if/else blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if if/else-if/else blocks should be collapsed
+		 */
 		public boolean collapseConditionals() {
 			return fAllowCollapsing && fCollapseConditionals;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if switch blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if switch blocks should be collapsed
+		 */
 		public boolean collapseSwitches() {
 			return fAllowCollapsing && fCollapseSwitches;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if synchronized blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if synchronized blocks should be collapsed
+		 */
 		public boolean collapseSynchronizeds() {
 			return fAllowCollapsing && fCollapseSynchronizeds;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if unnamed blocks should be collapsed.
+		 * 
+		 * @return <code>true</code> if unnamed blocks should be collapsed
+		 */
 		public boolean collapseUnnameds() {
 			return fAllowCollapsing && fCollapseUnnameds;
 		}
