@@ -1197,7 +1197,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 				else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
 					inSingleLineComment= false;
 				}
-				else if (!(inSingleLineComment || inBlockComment || inString || inCharLiteral)) {
+				else if (!inSingleLineComment && !inBlockComment && !inString && !inCharLiteral) {
 					if (contents.charAt(pos) == '{') {
 						if (lastBlockToken == "") { //$NON-NLS-1$
 							int level= 0;
