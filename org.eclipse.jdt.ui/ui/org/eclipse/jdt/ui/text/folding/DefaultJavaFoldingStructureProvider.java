@@ -1147,7 +1147,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
 						if (normalized != null) {
 							Position position= createCommentPosition(normalized);
-							ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseJavadoc(), element, false), position);
+							ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseJavadoc(), element, true), position);
 						}
 					}
 				}
