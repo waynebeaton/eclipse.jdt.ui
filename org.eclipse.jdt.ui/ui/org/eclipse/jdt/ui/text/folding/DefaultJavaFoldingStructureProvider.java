@@ -221,6 +221,30 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		public boolean collapseMembers() {
 			return fAllowCollapsing && fCollapseMembers;
 		}
+		
+		public boolean collapseTrys() {
+			return fAllowCollapsing && fCollapseTrys;
+		}
+		
+		public boolean collapseLoops() {
+			return fAllowCollapsing && fCollapseLoops;
+		}
+		
+		public boolean collapseConditionals() {
+			return fAllowCollapsing && fCollapseConditionals;
+		}
+		
+		public boolean collapseSwitches() {
+			return fAllowCollapsing && fCollapseSwitches;
+		}
+		
+		public boolean collapseSynchronizeds() {
+			return fAllowCollapsing && fCollapseSynchronizeds;
+		}
+		
+		public boolean collapseUnnameds() {
+			return fAllowCollapsing && fCollapseUnnameds;
+		}
 	}
 
 	
