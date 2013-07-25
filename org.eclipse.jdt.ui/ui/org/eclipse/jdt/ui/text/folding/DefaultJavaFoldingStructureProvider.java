@@ -1080,14 +1080,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					Position position= element instanceof IMember ? createMemberPosition(normalized, (IMember) element) : createCommentPosition(normalized);
 					if (position != null) {
 						ctx.addProjectionRange(new JavaProjectionAnnotation(collapse, element, false), position);
-						computeCodeBlockFoldngStructure(element, ctx, normalized);
+						computeCodeBlockFoldingStructure(element, ctx, normalized);
 					}
 				}
 			}
 		}
 	}
 	
-	private void computeCodeBlockFoldngStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+	private void computeCodeBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
 		try {
 			ISourceReference srcRef= (ISourceReference) element;
 			String contents= null;
