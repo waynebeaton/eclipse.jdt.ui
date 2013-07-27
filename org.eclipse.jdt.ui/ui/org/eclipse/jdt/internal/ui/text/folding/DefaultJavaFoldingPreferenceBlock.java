@@ -105,8 +105,8 @@ public class DefaultJavaFoldingPreferenceBlock implements IJavaFoldingPreference
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_loops, PreferenceConstants.EDITOR_FOLDING_LOOPS, 0);
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_trys, PreferenceConstants.EDITOR_FOLDING_TRYS, 0);
 		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_synchronizeds, PreferenceConstants.EDITOR_FOLDING_SYNCHRONIZEDS, 0);
-		addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_unnameds, PreferenceConstants.EDITOR_FOLDING_UNNAMEDS, 0);
-
+		//addCheckBox(inner, FoldingMessages.DefaultJavaFoldingPreferenceBlock_unnameds, PreferenceConstants.EDITOR_FOLDING_UNNAMEDS, 0);
+		
 		return inner;
 	}
 
