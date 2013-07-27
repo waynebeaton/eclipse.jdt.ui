@@ -1204,6 +1204,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 				}
 				else if (!inSingleLineComment && !inBlockComment && !inString && !inCharLiteral) {
 					if (contents.charAt(pos) == '{') {
+						/*
 						if (lastBlockToken == "") { //$NON-NLS-1$
 							int level= 0;
 							int subpos= pos;
@@ -1224,6 +1225,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseUnnameds(), element, false), position);
 							}
 						}
+						*/
 					}
 					else if (contents.charAt(pos) == 'c') {
 						if (contents.charAt(pos + 1) == 'a') {
