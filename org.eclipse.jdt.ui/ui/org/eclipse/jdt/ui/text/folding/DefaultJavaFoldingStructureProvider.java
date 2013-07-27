@@ -1112,6 +1112,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 		IRegion[] regions= computeProjectionRanges((ISourceReference) element, ctx);
 		if (regions.length > 0) {
 			// comments
+			int commentsLength= 0;
 			for (int i= 0; i < regions.length - 1; i++) {
 				IRegion normalized= alignRegion(regions[i], ctx);
 				if (normalized != null) {
@@ -1126,6 +1127,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						ctx.addProjectionRange(new JavaProjectionAnnotation(commentCollapse, element, true), position);
 					}
 				}
+				commentsLength+= normalized.getLength();
 			}
 			// code
 			if (collapseCode) {
@@ -1134,14 +1136,14 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					Position position= element instanceof IMember ? createMemberPosition(normalized, (IMember) element) : createCommentPosition(normalized);
 					if (position != null) {
 						ctx.addProjectionRange(new JavaProjectionAnnotation(collapse, element, false), position);
-						computeCodeBlockFoldingStructure(element, ctx, normalized);
+						computeCodeBlockFoldingStructure(element, ctx, normalized, commentsLength);
 					}
 				}
 			}
 		}
 	}
 	
-	private void computeCodeBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region) {
+	private void computeCodeBlockFoldingStructure(IJavaElement element, FoldingStructureComputationContext ctx, IRegion region, int commentsLength) {
 		try {
 			ISourceReference srcRef= (ISourceReference) element;
 			String contents= null;
@@ -1159,25 +1161,28 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 			while (pos < contents.length()) {
 				if (contents.charAt(pos) == '/') {
 					if (contents.charAt(pos + 1) == '/') { // Java comment
-						inSingleLineComment= true;
+						if (!inBlockComment && !inString && !inCharLiteral)
+							inSingleLineComment= true;
 					}
 					else if (contents.charAt(pos + 1) == '*') { // Java block comment
-						inBlockComment= true;
-						int subpos= ++pos;
-						while (true) {
-							if (contents.charAt(subpos) == '*') {
-								if (contents.charAt(subpos + 1) == '/') {
-									subpos++;
-									break;
+						if (!inBlockComment && !inString && !inSingleLineComment && !inCharLiteral) {
+							inBlockComment= true;
+							int subpos= ++pos;
+							while (true) {
+								if (contents.charAt(subpos) == '*') {
+									if (contents.charAt(subpos + 1) == '/') {
+										subpos++;
+										break;
+									}
 								}
+								subpos++;
 							}
 							subpos++;
-						}
-						subpos++;
-						IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
-						if (normalized != null) {
-							Position position= createCommentPosition(normalized);
-							ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseJavadoc(), element, true), position);
+							IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
+							if (normalized != null) {
+								Position position= createCommentPosition(normalized);
+								ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseJavadoc(), element, true), position);
+							}
 						}
 					}
 				}
@@ -1187,11 +1192,11 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 					}
 				}
 				else if (contents.charAt(pos) == '\'') { // Character literal
-					if (!inString)
+					if (!inString && !inSingleLineComment && !inBlockComment)
 						inCharLiteral= !inCharLiteral;
 				}
 				else if (contents.charAt(pos) == '"') { // String
-					if (!inCharLiteral)
+					if (!inCharLiteral && !inSingleLineComment && !inBlockComment)
 						inString= !inString;
 				}
 				else if (contents.charAt(pos) == '\n' || contents.charAt(pos) == '\r') { // New line or carriage return
@@ -1213,7 +1218,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 								}
 								subpos++;
 							}
-							IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+							IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 							if (normalized != null) {
 								Position position= new Position(normalized.getOffset(), normalized.getLength());
 								ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseUnnameds(), element, false), position);
@@ -1243,7 +1248,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 											}
 											subpos++;
 										}
-										IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+										IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 										if (normalized != null) {
 											Position position= new Position(normalized.getOffset(), normalized.getLength());
 											ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
@@ -1273,7 +1278,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									}
 									subpos++;
 								}
-								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+								IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
 									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
@@ -1302,7 +1307,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 											}
 											subpos++;
 										}
-										IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+										IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 										if (normalized != null) {
 											Position position= new Position(normalized.getOffset(), normalized.getLength());
 											ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseConditionals(), element, false), position);
@@ -1338,7 +1343,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 													}
 													subpos++;
 												}
-												IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+												IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 												if (normalized != null) {
 													Position position= new Position(normalized.getOffset(), normalized.getLength());
 													ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
@@ -1383,7 +1388,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 										}
 										subpos++;
 									}
-									IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+									IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 									if (normalized != null) {
 										Position position= new Position(normalized.getOffset(), normalized.getLength());
 										ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
@@ -1412,7 +1417,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									}
 									subpos++;
 								}
-								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+								IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
 									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseConditionals(), element, false), position);
@@ -1445,7 +1450,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 													subpos++;
 												}
 											}
-											IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+											IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 											if (normalized != null) {
 												Position position= new Position(normalized.getOffset(), normalized.getLength());
 												ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseSwitches(), element, false), position);
@@ -1485,7 +1490,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 																			subpos++;
 																		}
 																	}
-																	IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+																	IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 																	if (normalized != null) {
 																		Position position= new Position(normalized.getOffset(), normalized.getLength());
 																		ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseSynchronizeds(), element, false), position);
@@ -1524,7 +1529,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 									}
 									subpos++;
 								}
-								IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+								IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 								if (normalized != null) {
 									Position position= new Position(normalized.getOffset(), normalized.getLength());
 									ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseTrys(), element, false), position);
@@ -1555,7 +1560,7 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 												}
 												subpos++;
 											}
-											IRegion normalized= alignRegion(new Region(region.getOffset() + pos, subpos - pos), ctx);
+											IRegion normalized= alignRegion(new Region(region.getOffset() + pos - commentsLength, subpos - pos), ctx);
 											if (normalized != null) {
 												Position position= new Position(normalized.getOffset(), normalized.getLength());
 												ctx.addProjectionRange(new JavaProjectionAnnotation(ctx.collapseLoops(), element, false), position);
