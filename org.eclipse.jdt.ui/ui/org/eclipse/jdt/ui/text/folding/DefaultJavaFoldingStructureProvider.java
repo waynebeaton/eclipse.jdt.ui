@@ -1127,7 +1127,8 @@ public class DefaultJavaFoldingStructureProvider implements IJavaFoldingStructur
 						ctx.addProjectionRange(new JavaProjectionAnnotation(commentCollapse, element, true), position);
 					}
 				}
-				commentsLength+= normalized.getLength();
+				if (normalized != null)
+					commentsLength+= normalized.getLength();
 			}
 			// code
 			if (collapseCode) {
